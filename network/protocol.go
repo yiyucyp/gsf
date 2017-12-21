@@ -1,23 +1,15 @@
 package network
 
 import (
-	"bufio"
-	"io"
 	"reflect"
 
 	"github.com/woobest/network/config"
 )
 
-type Protocol interface {
-	//完成具体的头部组织并发送，利用reflect获取msgIDgo
-	SendPacket(interface{}, func([]byte) error) error
-	RecvPacket([]byte, *bufio.Reader) (interface{}, error)
+type ProtocolDefault struct {
 }
 
-type ProtocolImp struct {
-}
-
-func (self *ProtocolImp) SendPacket(data interface{}, sendFun func([]byte) error) (err error) {
+func (self *ProtocolDefault) SendPacket(data interface{}, sendFun func([]byte) error) (err error) {
 	meta, err := MessageMetaByType(reflect.TypeOf(data))
 	if err != nil {
 		return err
@@ -48,9 +40,9 @@ func (self *ProtocolImp) SendPacket(data interface{}, sendFun func([]byte) error
 	return err
 }
 
-func (self *ProtocolImp) RecvPacket(buf []byte, reader *bufio.Reader) (msg interface{}, err error) {
+func (self *ProtocolDefault) RecvPacket(buf []byte, readFun func([]byte) error, s Session) (msg interface{}, err error) {
 	head := NetPacket{}
-	if _, err = io.ReadFull(reader, buf[0:PacketHeadSize]); err != nil {
+	if err = readFun(buf[0:PacketHeadSize]); err != nil {
 		return
 	}
 	if err = head.PrasePacket(buf); err != nil {
@@ -62,15 +54,16 @@ func (self *ProtocolImp) RecvPacket(buf []byte, reader *bufio.Reader) (msg inter
 		return
 	}
 
-	if _, err = io.ReadFull(reader, buf[:head.BodySize]); err != nil {
+	if err = readFun(buf[:head.BodySize]); err != nil {
 		return
 	}
-	msg = reflect.New(meta.Type).Interface()
-	if err = meta.Codec.Decode(buf[:head.BodySize], msg); err != nil {
+	pack := reflect.New(meta.Type).Interface()
+	if err = meta.Codec.Decode(buf[:head.BodySize], pack); err != nil {
 		return
 	}
+	meta.Hander(s, pack, meta)
 	return
 }
 func NewProtocol() Protocol {
-	return &ProtocolImp{}
+	return &ProtocolDefault{}
 }

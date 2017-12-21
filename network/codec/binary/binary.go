@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 
-	"github.com/woobest/network"
+	"github.com/woobest/network/codec"
 )
 
 type binaryCodec struct {
@@ -31,9 +31,5 @@ func (self *binaryCodec) Decode(data []byte, msgObj interface{}) error {
 
 func init() {
 
-	network.RegisterCodec("binary", new(binaryCodec))
-}
-
-func NewBinaryCode(order binary.ByteOrder) network.Codec {
-	return &binaryCodec{ByteOrder: order}
+	codec.RegisterCodec("binary", new(binaryCodec))
 }

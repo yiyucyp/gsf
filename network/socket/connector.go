@@ -14,7 +14,7 @@ type Connector struct {
 	session          network.Session
 	autoReconnectSec int
 	network.Protocol
-	network.PacketHandler
+	//network.PacketHandler
 }
 
 func (self *Connector) Start(address string) network.Peer {
@@ -39,11 +39,11 @@ func (self *Connector) GetSession() network.Session {
 	return self.session
 }
 
-func NewConnector(protocol network.Protocol, hander network.PacketHandler) network.Peer {
+func NewConnector(protocol network.Protocol) network.Peer {
 	return &Connector{
-		stopped:       false,
-		Protocol:      protocol,
-		PacketHandler: hander,
+		stopped:  false,
+		Protocol: protocol,
+		//PacketHandler: hander,
 	}
 }
 

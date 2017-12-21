@@ -7,7 +7,3 @@ var (
 	MaxPacketSize uint16           = 10240
 	LenStackBuf                    = 4096
 )
-
-func Init() {
-
-}

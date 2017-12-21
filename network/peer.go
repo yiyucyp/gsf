@@ -16,5 +16,15 @@ type Peer interface {
 	Start(address string) Peer
 	Stop()
 	Protocol
-	PacketHandler
+	//PacketHandler
+}
+
+type Protocol interface {
+	//完成具体的头部组织并发送，利用reflect获取msgIDgo
+	SendPacket(interface{}, func([]byte) error) error
+	RecvPacket([]byte, func([]byte) error, Session) (interface{}, error)
+}
+
+type PacketHandler interface {
+	HandlePacket(packet interface{}, s Session)
 }

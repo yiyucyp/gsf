@@ -3,7 +3,7 @@ package json
 import (
 	"encoding/json"
 
-	"github.com/woobest/network"
+	"github.com/woobest/network/codec"
 )
 
 type jsonCodec struct {
@@ -26,5 +26,5 @@ func (self *jsonCodec) Decode(data []byte, msgObj interface{}) error {
 
 func init() {
 
-	network.RegisterCodec("json", new(jsonCodec))
+	codec.RegisterCodec("json", new(jsonCodec))
 }

@@ -1,7 +1,10 @@
 package socket
 
-import "github.com/woobest/network"
-import "net"
+import (
+	"net"
+
+	"github.com/woobest/network"
+)
 
 type socketAcceptor struct {
 	network.SessionManager
@@ -9,7 +12,7 @@ type socketAcceptor struct {
 	listerner net.Listener
 	address   string
 	network.Protocol
-	network.PacketHandler
+	//network.PacketHandler
 }
 
 func (self *socketAcceptor) waitStopFinished() {
@@ -81,11 +84,11 @@ func (self *socketAcceptor) onAccepted(conn net.Conn) {
 	session.start()
 }
 
-func NewAcceptor(procotol network.Protocol, hander network.PacketHandler) network.Peer {
+func NewAcceptor(procotol network.Protocol) network.Peer {
 	peer := &socketAcceptor{
 		SessionManager: network.NewSessionManager(),
 		Protocol:       procotol,
-		PacketHandler:  hander,
+		//PacketHandler:  hander,
 	}
 
 	return peer

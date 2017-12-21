@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package enum;
+
+enum MsgID
+{
+    Login = 1;
+    CharMove = 2;
+    ...
+}
+
+message MsgLogin
+{
+    required uint32 uaid = 1;
+    required uint32 charid = 2;
+}
+
+
+
+
+
+////
+
+Register(MsgID.Login, MsgLogin, HandlerFun )

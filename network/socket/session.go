@@ -83,7 +83,6 @@ func (self *socketSession) Close() {
 func (self *socketSession) sendLoop() {
 	defer self.Close()
 	peer := self.FromPeer()
-	//buf := make([]byte, config.MaxPacketSize, config.MaxPacketSize)
 	for {
 		select {
 		case msg, ok := <-self.writeChan:
@@ -91,7 +90,6 @@ func (self *socketSession) sendLoop() {
 				if msg == nil || ok == false { // nil主动关闭,或者chan关掉了退出并回收
 					return
 				}
-
 				err := peer.SendPacket(msg, func(sendbuf []byte) error {
 					return self.writeBuf(sendbuf)
 				})
@@ -106,12 +104,24 @@ func (self *socketSession) sendLoop() {
 				var err error
 				for i := 0; i < 100; i++ {
 					if err = self.writer.Flush(); err != io.ErrShortWrite {
+						//log.Infof("send default")
 						break
 					}
 					if err != nil {
 						return
 					}
 				}
+				msg, ok := <-self.writeChan
+				if msg == nil || ok == false { // nil主动关闭,或者chan关掉了退出并回收
+					return
+				}
+				err = peer.SendPacket(msg, func(sendbuf []byte) error {
+					return self.writeBuf(sendbuf)
+				})
+				if err != nil {
+					return
+				}
+
 			}
 		}
 	}
@@ -135,16 +145,13 @@ func (self *socketSession) recvLoop() {
 	// 减少slice的申请释放
 	buf := make([]byte, config.MaxPacketSize, config.MaxPacketSize)
 	for {
-		packet, err := peer.RecvPacket(buf, self.reader)
+		_, err := peer.RecvPacket(buf, func(buf []byte) error {
+			_, err := io.ReadFull(self.reader, buf)
+			return err
+		}, self)
 		if err != nil {
 			log.Errorf("recvLoop error:%s", err.Error())
 			break
 		}
-		peer.HandlePacket(packet, self)
-		//self.FromPeer().HandleEvent(package, slef)
-		//err := packet.ReadPacket(buff, self.reader)
-		//msg := network.NewReadMsg()
-		//err := msg.BuildRecvPacket(self.reader)
-		//self.FromPeer().HandleEvent(msg, msg.Opcode, self)
 	}
 }

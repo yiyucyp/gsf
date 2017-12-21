@@ -13,11 +13,14 @@ type InstanceData struct {
 	wg       sync.WaitGroup
 }
 
-func (self *InstanceData) Init() {
+func (self *InstanceData) Init(async bool) {
 	self.closeSig = make(chan bool, 1)
 	self.wg.Add(1)
 	self.I.OnInit()
-	go self.Run()
+	if async == true {
+		go self.Run()
+	}
+	self.Run()
 }
 func (self *InstanceData) Run() {
 	self.I.Run(self.closeSig)

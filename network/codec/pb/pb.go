@@ -1,8 +1,8 @@
-package pbcodec
+package pb
 
 import (
 	"github.com/golang/protobuf/proto"
-	"github.com/woobest/network"
+	"github.com/woobest/network/codec"
 )
 
 type pbCodec struct {
@@ -38,5 +38,5 @@ func (self *pbCodec) Decode(data []byte, msgObj interface{}) error {
 
 func init() {
 
-	network.RegisterCodec("pb", new(pbCodec))
+	codec.RegisterCodec("pb", new(pbCodec))
 }
